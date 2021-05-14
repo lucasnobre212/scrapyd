@@ -28,7 +28,7 @@ class FilesystemEggStorage(object):
             copyfileobj(eggfile, f)
         try:
             distributions = next(pkg_resources.find_distributions(eggpath))
-            or requirement in distributions.requires(): # install_requires of setup.py
+            for requirement in distributions.requires(): # install_requires of setup.py
                 subprocess.check_call([sys.executable, '-m', 'pip', 'install', requirement.__str__()])
         except StopIteration:
             # raise ValueError("Unknown or corrupt egg")
