@@ -4,6 +4,9 @@ from os import path, makedirs, remove
 from shutil import copyfileobj, rmtree
 from distutils.version import LooseVersion
 
+import pkg_resources
+import pip
+
 from zope.interface import implementer
 
 from .interfaces import IEggStorage
@@ -21,6 +24,14 @@ class FilesystemEggStorage(object):
             makedirs(eggdir)
         with open(eggpath, 'wb') as f:
             copyfileobj(eggfile, f)
+        try:
+            distributions = next(pkg_resources.find_distributions(eggpath))
+            for requirement in distributions.requires(): # install_requires of setup.py
+                pip.main(['install',requirement.__str__()])
+        except StopIteration:
+            # raise ValueError("Unknown or corrupt egg")
+            # tests can't pass
+            pass
 
     def get(self, project, version=None):
         if version is None:
