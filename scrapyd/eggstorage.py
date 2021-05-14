@@ -4,6 +4,8 @@ from os import path, makedirs, remove
 from shutil import copyfileobj, rmtree
 from distutils.version import LooseVersion
 
+import sys
+import subprocess
 import pkg_resources
 import pip
 
@@ -26,8 +28,7 @@ class FilesystemEggStorage(object):
             copyfileobj(eggfile, f)
         try:
             distributions = next(pkg_resources.find_distributions(eggpath))
-            for requirement in distributions.requires(): # install_requires of setup.py
-                pip.main(['install',requirement.__str__()])
+            subprocess.check_call([sys.executable, '-m', 'pip', 'install', distributions.requires()])
         except StopIteration:
             # raise ValueError("Unknown or corrupt egg")
             # tests can't pass
